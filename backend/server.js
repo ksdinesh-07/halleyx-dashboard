@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 5005;
 app.use(cors());
 app.use(express.json());
 
+// Prometheus metrics
+const client = require('prom-client');
+client.collectDefaultMetrics({ timeout: 5000 });
+
 // ── Database setup ────────────────────────────────────────────────────────────
 
 const DB_DIR  = path.join(__dirname, 'data');
@@ -242,6 +246,13 @@ app.post('/api/dashboard/:userId', (req, res) => {
 app.post('/api/session', (req, res) => {
   const userId = req.body.userId || uuidv4();
   res.json({ userId });
+});
+
+
+// Metrics endpoint for Prometheus
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', client.register.contentType);
+  res.end(await client.register.metrics());
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
