@@ -24,7 +24,6 @@ Halleyx Dashboard lets you create and manage customer orders through a clean tab
 | Reverse Proxy | Nginx |
 | Cloud | AWS EC2 |
 | Infrastructure | Terraform |
-| CI/CD | GitHub Actions |
 | Monitoring | Prometheus + Grafana |
 | System Metrics | Node Exporter |
 
