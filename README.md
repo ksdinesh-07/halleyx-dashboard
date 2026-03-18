@@ -2,8 +2,15 @@
 
 A full stack web application for managing customer orders and visualising business analytics — built with React, Node.js, SQLite, Docker, AWS EC2, Terraform, Prometheus, and Grafana.
 
-weblink:
-        http://54.146.226.39
+---
+
+## Live URLs
+
+| Service | URL |
+|---|---|
+| Application | http://54.146.226.39 |
+| Prometheus | http://54.146.226.39:9090 |
+| Grafana | http://54.146.226.39:3001 |
 
 ---
 
@@ -23,7 +30,7 @@ Halleyx Dashboard lets you create and manage customer orders through a clean tab
 | Containerisation | Docker + Docker Compose |
 | Reverse Proxy | Nginx |
 | Cloud | AWS EC2 |
-| Infrastructure | Terraform |
+| Infrastructure as Code | Terraform |
 | Monitoring | Prometheus + Grafana |
 | System Metrics | Node Exporter |
 
@@ -128,7 +135,7 @@ docker compose down
 docker ps
 ```
 
-### What runs inside Docker
+### Containers
 
 | Container | Port | Description |
 |---|---|---|
@@ -205,44 +212,12 @@ terraform output ec2_public_ip
 terraform destroy
 ```
 
-### Required before running
+### Required before running Terraform
 
 - AWS account with IAM user that has EC2 and VPC permissions
 - AWS CLI installed and configured with your access keys
 - EC2 key pair named halleyx-key created in AWS console
 - Terraform installed on your machine
-
----
-
-### How the pipeline works
-```
-You push code to GitHub
-        |
-GitHub Actions triggers
-        |
-Build backend Docker image
-Build frontend Docker image
-        |
-Push both images to Docker Hub
-        |
-SSH into EC2 server
-Pull latest images
-Restart containers
-        |
-App is live with new code
-```
-
-### Secrets you need to add in GitHub
-
-Go to your repo Settings > Secrets and variables > Actions and add these:
-
-| Secret Name | What to put |
-|---|---|
-| DOCKER_USERNAME | Your Docker Hub username |
-| DOCKER_PASSWORD | Your Docker Hub password |
-| SERVER_HOST | EC2 public IP address |
-| SERVER_USER | ubuntu |
-| SERVER_SSH_KEY | Contents of your .pem key file |
 
 ---
 
@@ -261,19 +236,33 @@ cd halleyx-dashboard
 docker compose up -d --build
 ```
 
+### Redeploy after code changes
+```bash
+cd ~/halleyx-dashboard
+git pull origin main
+sudo docker compose down
+sudo docker compose up -d --build
+```
+
 ### Useful server commands
 ```bash
 # Check all containers
-docker ps
+sudo docker ps
 
 # View backend logs
-docker compose logs backend
+sudo docker compose logs backend
+
+# View frontend logs
+sudo docker compose logs frontend
 
 # Restart everything
-docker compose down && docker compose up -d
+sudo docker compose down && sudo docker compose up -d
 
-# Pull latest code and redeploy
-git pull origin main && docker compose up -d --build
+# Check disk usage
+df -h
+
+# Check memory usage
+free -m
 ```
 
 ---
@@ -284,18 +273,18 @@ git pull origin main && docker compose up -d --build
 
 | Tool | URL | Login |
 |---|---|---|
-| App | http://YOUR_EC2_IP | - |
-| Prometheus | http://YOUR_EC2_IP:9090 | - |
-| Grafana | http://YOUR_EC2_IP:3001 | admin / admin123 |
+| App | http://54.146.226.39 | - |
+| Prometheus | http://54.146.226.39:9090 | - |
+| Grafana | http://54.146.226.39:3001 | admin / admin123 |
 
 ### Setting up Grafana
 
 1. Open Grafana and login with admin / admin123
-2. Go to Connections > Add new connection
+2. Go to Connections and click Add new connection
 3. Search for Prometheus and select it
 4. Set the URL to http://prometheus:9090
 5. Click Save and Test
-6. Go to Dashboards > New > Import
+6. Go to Dashboards and click New then Import
 7. Enter dashboard ID 1860 and click Load
 8. Select Prometheus as the data source and click Import
 
@@ -318,6 +307,15 @@ up
 
 # Event loop lag in milliseconds
 nodejs_eventloop_lag_seconds * 1000
+
+# System uptime in hours
+(node_time_seconds - node_boot_time_seconds) / 3600
+
+# Network bytes received per second
+rate(node_network_receive_bytes_total[5m])
+
+# Active handles in Node.js
+nodejs_active_handles_total
 ```
 
 ### Alert rules
@@ -340,27 +338,23 @@ NODE_ENV=production
 
 ---
 
-## Common Issues
+## Common Issues and Fixes
 
 ### Port already in use
 ```bash
 sudo fuser -k 5005/tcp
 sudo fuser -k 80/tcp
-docker compose down
-docker compose up -d
+sudo docker compose down
+sudo docker compose up -d
 ```
 
 ### Cannot connect to backend
-
-Make sure the backend container is running:
 ```bash
-docker ps
-docker compose logs backend
+sudo docker ps
+sudo docker compose logs backend
 ```
 
 ### Prometheus target is down
-
-Check if the backend metrics endpoint is working:
 ```bash
 curl http://localhost:5005/metrics
 ```
@@ -371,28 +365,24 @@ sudo chown -R ubuntu:ubuntu ~/halleyx-dashboard
 git pull origin main
 ```
 
+### EC2 IP changed after restart
+
+AWS assigns a new public IP every time you stop and start the instance. To keep a fixed IP you need to assign an Elastic IP address in the AWS console.
+
 ---
 
 ## DevOps Pipeline Summary
 
-| Phase | Tool | Status |
+| Phase | Tool | Description |
 |---|---|---|
-| Local Development | React + Node.js + SQLite | Done |
-| Containerisation | Docker + Docker Compose | Done |
-| Version Control | GitHub | Done |
-| CI/CD Pipeline | GitHub Actions | Done |
-| Cloud Infrastructure | Terraform + AWS EC2 | Done |
-| Monitoring | Prometheus + Grafana | Done |
+| Local Development | React + Node.js + SQLite | Build and run the app locally |
+| Containerisation | Docker + Docker Compose | Package app into containers |
+| Version Control | GitHub | Store and manage code |
+| Cloud Infrastructure | Terraform + AWS EC2 | Create server automatically with code |
+| Deployment | Docker on EC2 | Run containers on cloud server |
+| Monitoring | Prometheus + Grafana | Collect and visualise metrics |
 
 ---
-
-## Live URLs
-
-| Service | URL |
-|---|---|
-| App | http://54.146.226.39 |
-| Prometheus | http://54.146.226.39:9090 |
-| Grafana | http://54.146.226.39:3001 |---
 
 ## Author
 
