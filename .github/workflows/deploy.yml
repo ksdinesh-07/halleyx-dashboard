@@ -35,13 +35,16 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/halleyx-frontend:latest
 
-      - name: Deploy to AWS EC2 via SSH
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY_B64 }}" | base64 -d > ~/.ssh/halleyx-key.pem
+          chmod 600 ~/.ssh/halleyx-key.pem
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to AWS EC2
+        run: |
+          ssh -i ~/.ssh/halleyx-key.pem -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'DEPLOY'
             cd ~/halleyx-dashboard
             sudo chown -R ubuntu:ubuntu .
             git config --global --add safe.directory /home/ubuntu/halleyx-dashboard
@@ -50,3 +53,4 @@ jobs:
             sudo docker compose up -d --build
             sudo docker image prune -f
             echo "Deployment completed successfully"
+          DEPLOY
