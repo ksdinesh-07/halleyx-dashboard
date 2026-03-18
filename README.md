@@ -2,6 +2,9 @@
 
 A full stack web application for managing customer orders and visualising business analytics — built with React, Node.js, SQLite, Docker, AWS EC2, Terraform, Prometheus, and Grafana.
 
+weblink:
+        http://3.81.230.235
+
 ---
 
 ## What this project does
