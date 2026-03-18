@@ -11,6 +11,7 @@ A full stack web application for managing customer orders and visualising busine
 | Application | http://54.146.226.39 |
 | Prometheus | http://54.146.226.39:9090 |
 | Grafana | http://54.146.226.39:3001 |
+| Youtube | https://www.youtube.com/watch?v=SCb7eepgQyE |
 
 ---
 
