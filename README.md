@@ -3,7 +3,7 @@
 A full stack web application for managing customer orders and visualising business analytics — built with React, Node.js, SQLite, Docker, AWS EC2, Terraform, Prometheus, and Grafana.
 
 weblink:
-        http://3.81.230.235
+        http://54.146.226.39
 
 ---
 
@@ -57,9 +57,6 @@ halleyx-dashboard/
 ├── monitoring/
 │   ├── prometheus.yml
 │   └── alert.rules.yml
-├── .github/
-│   └── workflows/
-│       └── deploy.yml         # GitHub Actions CI/CD pipeline
 ├── docker-compose.yml
 └── README.md
 ```
@@ -217,10 +214,6 @@ terraform destroy
 - Terraform installed on your machine
 
 ---
-
-## GitHub Actions - CI/CD Pipeline
-
-Every time you push code to the main branch, GitHub Actions automatically builds new Docker images, pushes them to Docker Hub, connects to your EC2 server via SSH, and restarts the containers with the latest code.
 
 ### How the pipeline works
 ```
@@ -398,11 +391,9 @@ git pull origin main
 
 | Service | URL |
 |---|---|
-| Application | http://3.81.230.235 |
-| Prometheus | http://3.81.230.235:9090 |
-| Grafana | http://3.81.230.235:3001 |
-
----
+| App | http://54.146.226.39 |
+| Prometheus | http://54.146.226.39:9090 |
+| Grafana | http://54.146.226.39:3001 |---
 
 ## Author
 
